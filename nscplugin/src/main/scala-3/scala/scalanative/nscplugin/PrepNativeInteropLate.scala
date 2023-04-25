@@ -48,6 +48,34 @@ class PostInlineNativeInterop extends PluginPhase {
         case ty => ty
   }
 
+  override def transformApply(tree: Apply)(using Context): Tree = {
+    val Apply(fun, evidences) = tree
+    val defnNir = this.defnNir
+    def dealiasTypeMapper = DealiasTypeMapper()
+
+    fun match
+      // fromScalaFunction[T1, R](fn) -> fromScalaFunction(classOf[T1], cassOf[R])(fn)
+      case Apply(TypeApply(tfun, tArgs), args) if defnNir.CFuncPtr_fromScalaFunction.find(_ == tfun.symbol).isDefined =>
+        val idx = defnNir.CFuncPtr_fromScalaFunction.indexOf(tfun.symbol)
+        // val defnNir.CFuncPtr_fromScalaFunction.find(_ == s).get
+        val transformed = defnNir._CFuncPtr_fromScalaFunction(idx)
+        // tArgs.map(a => Literal(Constant(dealiasTypeMapper(a.tpe))))
+        val retTy = dealiasTypeMapper(tArgs.last.tpe)
+        val res = cpy
+          .Apply(tree)(
+            ref(transformed),
+            tArgs ++ args ++ evidences
+          )
+          .withAttachment(NirDefinitions.NonErasedType, retTy)
+        println(res)
+        res
+
+      case _ => tree
+
+  }
+
+
+
   override def transformTypeApply(tree: TypeApply)(using Context): Tree = {
     val TypeApply(fun, tArgs) = tree
     val defnNir = this.defnNir
