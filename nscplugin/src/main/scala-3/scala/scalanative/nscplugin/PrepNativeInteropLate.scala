@@ -59,15 +59,16 @@ class PostInlineNativeInterop extends PluginPhase {
         val idx = defnNir.CFuncPtr_fromScalaFunction.indexOf(tfun.symbol)
         // val defnNir.CFuncPtr_fromScalaFunction.find(_ == s).get
         val transformed = defnNir._CFuncPtr_fromScalaFunction(idx)
+        val cls = defnNir.CFuncPtrNClass(idx)
         // tArgs.map(a => Literal(Constant(dealiasTypeMapper(a.tpe))))
-        val retTy = dealiasTypeMapper(tArgs.last.tpe)
+        val tys = tArgs.map(t => dealiasTypeMapper(t.tpe))
         val res = cpy
           .Apply(tree)(
             ref(transformed),
-            tArgs ++ args ++ evidences
+            args ++ (tArgs ++ evidences).map(t => Literal(Constant(t.tpe)))
           )
-          .withAttachment(NirDefinitions.NonErasedType, retTy)
-        println(res)
+          .withAttachment(NirDefinitions.NonErasedTypes, tys.toArray)
+          .withAttachment(NirDefinitions.NonErasedType, cls.typeRef)
         res
 
       case _ => tree

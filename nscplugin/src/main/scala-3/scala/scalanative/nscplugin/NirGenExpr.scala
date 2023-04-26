@@ -2387,12 +2387,11 @@ trait NirGenExpr(using Context) {
     private final val ExternForwarderSig = Sig.Generated("$extern$forwarder")
 
     private def genCFuncFromScalaFunction(app: Apply): Val = {
-      println(app.allAttachments)
       given pos: nir.Position = app.span
-      println(s"attachment of $app: ${app.getAttachment(NirDefinitions.NonErasedType)}")
-      val fn :: evidences = app.args: @unchecked
-      val paramTypes = evidences.map(unwrapTag)
+      val paramTys = app.allAttachments.find(a => a._1 eq NirDefinitions.NonErasedTypes).get._2.asInstanceOf[Array[core.Types.Type]]
+      val paramTypes: List[SimpleType] = paramTys.toList.map(fromType)
 
+      val fn :: _ = app.args: @unchecked
 
       @tailrec
       def resolveFunction(tree: Tree): Val = tree match {
@@ -2432,7 +2431,8 @@ trait NirGenExpr(using Context) {
       }
 
       val fnRef = resolveFunction(fn)
-      val className = genTypeName(app.tpe.sym)
+      val classTpe = app.getAttachment(NirDefinitions.NonErasedType).get
+      val className = genTypeName(classTpe.sym)
 
       val ctorTy = nir.Type.Function(
         Seq(Type.Ref(className), Type.Ptr),

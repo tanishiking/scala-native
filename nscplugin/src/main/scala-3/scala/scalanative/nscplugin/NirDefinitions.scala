@@ -18,6 +18,7 @@ object NirDefinitions {
   private val cached = ContextCached(NirDefinitions())
   def get(using Context): NirDefinitions = cached.get
   object NonErasedType extends StickyKey[Type]
+  object NonErasedTypes extends StickyKey[Array[Type]]
 }
 
 // scalafmt: { maxColumn = 120}
