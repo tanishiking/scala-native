@@ -87,4 +87,4 @@ and the development process behind the project.
   contrib/index
   blog/index
   changelog/index
-  faq
+  fa
