@@ -1,0 +1,44 @@
+name: "MacOs tests env setup"
+description: "Used to setup MacOS tests environemt"
+inputs:
+  scala-version:
+    description: "Scala version used in the tests"
+    required: true
+  java-version:
+    description: "Java version to use in tests"
+    default: "8"
+  gc: 
+    description: "Garbage collector used, might require installing dependencies"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: "temurin"
+        java-version: ${{inputs.java-version}}
+    - name: Calculate binary version
+      shell: bash
+      run: |
+        version=${{ inputs.scala-version }}
+        if [[ $version == 2.* ]]; then
+          binaryVersion=${version%.*}
+          echo "binary-version=${binaryVersion}" >> $GITHUB_ENV
+          echo "project-version=${binaryVersion/./_}" >> $GITHUB_ENV
+        else 
+          echo "binary-version=3" >> $GITHUB_ENV
+          echo "project-version=3" >> $GITHUB_ENV
+        fi
+    
+    - name: Install dependencies
+      shell: bash
+      if: ${{ startsWith(inputs.gc, 'boehm') }}
+      run: brew install bdw-gc
+
+    # Loads cache with dependencies created in test-tools job
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/coursier
+          ~/.sbt/boot
+        key: ${{ runner.os }}-deps-${{ env.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
