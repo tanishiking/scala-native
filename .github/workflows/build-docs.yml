@@ -11,6 +11,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ammaraskar/sphinx-action@0.4
         with:
-          pre-build-command: "pip install Sphinx==4.2.0 recommonmark==0.7.1"
           docs-folder: "docs/"
           build-command: 'sphinx-build -b html . _build/html -W --keep-going -n'
