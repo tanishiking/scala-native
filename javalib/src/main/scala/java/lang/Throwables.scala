@@ -70,11 +70,12 @@ private[lang] object StackTrace {
       //
       // Consequently, to mitigate the risk of cascading recursive exceptions,
       // skip executing "BackTrace.decodeFileline" if "currentStackTrace" is already being invoked recursively.
-      // val recur = buffer.count(e => e._1.getMethodName == "currentStackTrace") > 1
+      val recur =
+        buffer.count(e => e._1.getMethodName == "currentStackTrace") > 1
       buffer.map { e =>
         val elem = e._1
         val ip = e._2
-        if ( // recur || // Skip decoding if we're calling currentStackTrace in recursively
+        if (recur || // Skip decoding if we're calling currentStackTrace in recursively
             elem.getFileName != null // Skip decoding if we already have filename information
         ) elem
         else {
