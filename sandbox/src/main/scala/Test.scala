@@ -5,5 +5,5 @@ object Test {
 
   def g() = error()
 
-  def error() = new Error("test")
+  def error() = throw new Error("test")
 }
