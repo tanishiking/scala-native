@@ -11,5 +11,5 @@ jobs:
       env:
         SCALANATIVE_MODE: release-fast
         SCALANATIVE_GC: immix
-        SCALANATIVE_OPTIMIZE: true
+        SCALANATIVE_OPTIMIZE: false
       run: sbt sandbox3/run
