@@ -12,6 +12,7 @@ import scala.scalanative.build
 import scala.scalanative.linker.ReachabilityAnalysis
 import scala.scalanative.util.{Scope, partitionBy, procs}
 import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
 
 import scala.scalanative.build.ScalaNative
 import scala.scalanative.codegen.{Metadata => CodeGenMetadata}
@@ -131,26 +132,27 @@ object CodeGen {
         // To address this issue, we partition into multiple LLVM IR files per Scala source file originated from.
         // This will ensure that each LLVM IR file only references a single Scala source file,
         // which will prevent the Darwin linker failing to generate N_OSO symbols.
+        val md5 = MessageDigest.getInstance("MD5")
         Future
           .traverse(assembly.groupBy(x => sourceDirOf(x.pos)).toSeq) {
             case (dir, defns) =>
               Future {
-                val path = dropPrefix(dir.stripSuffix("/"))
-                val outFile = config.workDir.resolve(s"$path.ll")
+                val hash = md5.digest(dir.getBytes).toString
+                val outFile = config.workDir.resolve(s"$hash.ll")
                 val ownerDirectory = outFile.getParent()
 
-                ctx.addEntry(path, defns)
-                if (ctx.shouldCompile(path)) {
+                ctx.addEntry(hash, defns)
+                if (ctx.shouldCompile(hash)) {
                   val sorted = defns.sortBy(_.name)
                   if (!Files.exists(ownerDirectory))
                     Files.createDirectories(ownerDirectory)
-                  Impl(env, sorted).gen(path, workDir)
+                  Impl(env, sorted).gen(hash, workDir)
                 } else {
                   assert(ownerDirectory.toFile.exists())
                   config.logger.debug(
-                    s"Content of package has not changed, skiping generation of $path.ll"
+                    s"Content of package has not changed, skiping generation of $hash.ll"
                   )
-                  config.workDir.resolve(s"$path.ll")
+                  config.workDir.resolve(s"$hash.ll")
                 }
               }
           }
