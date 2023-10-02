@@ -1,6 +1,6 @@
-name: readthedocs/actions
+name: Build docs 
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
     # Execute this action only on PRs that touch
