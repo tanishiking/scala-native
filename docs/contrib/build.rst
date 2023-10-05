@@ -280,7 +280,7 @@ Follow the steps after cloning the `scalanative <https://github.com/scala-native
 3. Navigate to ``docs/_build/html`` directory and open ``index.html`` file in your browser.
 
 The next section has more build and development information for those wanting
-to work on :ref:`compir`.
+to work on :ref:`compiler`.
 
 .. [1] http://www.scala-native.org/en/latest/user/setup.html
 .. [2] http://www.scala-native.org/en/latest/user/sbt.html
