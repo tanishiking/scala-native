@@ -7,9 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # see: https://github.com/mgeier/sphinx-last-updated-by-git
+          fetch-depth: 0 # clone full repo to get last-updated dates
       - uses: ammaraskar/sphinx-action@0.4
         with:
           docs-folder: "docs/"
-          pre-build-command: "apt-get update -y && apt-get install -y git"
           build-command: 'sphinx-build -b html . _build/html -W --keep-going -n'
