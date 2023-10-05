@@ -12,3 +12,4 @@ jobs:
         with:
           pre-build-command: "sudo apt-get install -y git"
           docs-folder: "docs/"
+          build-command: "SPHINXOPTS=-W make html"
