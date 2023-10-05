@@ -6,6 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: ammaraskar/sphinx-action@0.4
         with:
           docs-folder: "docs/"
