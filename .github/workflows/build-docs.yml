@@ -8,6 +8,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # clone full repo to get last-updated dates
+      - name: Install git
+        run: sudo apt-get install -y git
       - uses: ammaraskar/sphinx-action@0.4
         with:
           docs-folder: "docs/"
