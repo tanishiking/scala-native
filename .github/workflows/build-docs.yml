@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # see: https://github.com/mgeier/sphinx-last-updated-by-git
       - uses: ammaraskar/sphinx-action@0.4
         with:
           docs-folder: "docs/"
